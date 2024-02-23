@@ -2,12 +2,28 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>My first three.js app</title>
+		<title>wEngine</title>
 		<style>
 			body { margin: 0; }
+			html, body {
+				width: 100%;
+				height: 100%;
+			}
+			canvas {
+				background-color: rgb(0, 0, 0);
+				height: 100%;
+				width: 100%;
+			}
+			* {
+				margin: 0;
+				padding: 0;
+			}
 		</style>
 	</head>
 	<body>
-		<script type="module" src="./dist/Engine.js"></script>
+		<canvas height="100%" width="100%" id="RenderCanvas">
+		</canvas>
+		<script type="module" src="./src/main.ts"></script>
+		<!-- <script type="module" src="./dist/main.js"></script> -->
 	</body>
 </html>

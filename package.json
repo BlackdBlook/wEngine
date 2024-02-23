@@ -1,12 +1,9 @@
 {
   "dependencies": {
-    "@types/three": "^0.161.2",
-    "three": "^0.161.0",
-    "three-nodes": "^0.0.0",
-    "typescript": "^5.3.3"
-  },
-  "devDependencies": {
-    "vite": "^5.1.3",
-    "vite-plugin-top-level-await": "^1.4.1"
+    "@webgpu/types": "^0.1.40",
+    "math.js": "^1.1.46",
+    "threejs-math": "^0.147.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4"
   }
 }
