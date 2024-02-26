@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>wEngine</title>
+		<style>
+			body { margin: 0; }
+			html, body {
+				width: 100%;
+				height: 100%;
+			}
+			canvas {
+				background-color: rgb(0, 0, 0);
+				height: 100%;
+				width: 100%;
+			}
+			* {
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas height="100%" width="100%" id="RenderCanvas">
+		</canvas>
+		<!-- <script type="module" src="./src/main.ts"></script> -->
+		<!-- <script type="module" src="./dist/main.js"></script> -->
+        <script>
+
+            async function Run()
+            {
+                if (!navigator.gpu) {
+                throw new Error("WebGPU not supported on this browser.");
+                }
+                const adapter = await navigator.gpu.requestAdapter();
+                if (!adapter) {
+                throw new Error("No appropriate GPUAdapter found.");
+                }
+                const device = await adapter.requestDevice();
+                var RenderCanvas = document.getElementById("RenderCanvas");
+                const context = RenderCanvas.getContext("webgpu");
+                const canvasFormat = navigator.gpu.getPreferredCanvasFormat();
+                context.configure({
+                    device: device,
+                    format: canvasFormat,
+                });
+                const encoder = device.createCommandEncoder();
+
+
+                const vertices = new Float32Array([
+                //   X,    Y,
+                -0.8, -0.8, // Triangle 1 (Blue)
+                0.8, -0.8,
+                0.8,  0.8,
+
+                -0.8, -0.8, // Triangle 2 (Red)
+                0.8,  0.8,
+                -0.8,  0.8,
+                ]);
+                const vertexBuffer = device.createBuffer({
+                label: "Cell vertices",
+                size: vertices.byteLength,
+                usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+                });
+                device.queue.writeBuffer(vertexBuffer, /*bufferOffset=*/0, vertices);
+                const vertexBufferLayout = {
+                arrayStride: 8,
+                attributes: [{
+                    format: "float32x2",
+                    offset: 0,
+                    shaderLocation: 0, // Position, see vertex shader
+                }],
+                };
+                const cellShaderModule = device.createShaderModule({
+                label: 'Cell shader',
+                code: `
+                    @vertex
+                    fn vertexMain(@location(0) pos: vec2f) ->
+                    @builtin(position) vec4f {
+                    return vec4f(pos, 0, 1);
+                    }
+
+                    @fragment
+                    fn fragmentMain() -> @location(0) vec4f {
+                    return vec4f(1, 0, 0, 1);
+                    }
+                `
+                });
+                const cellPipeline = device.createRenderPipeline({
+                label: "Cell pipeline",
+                layout: "auto",
+                vertex: {
+                    module: cellShaderModule,
+                    entryPoint: "vertexMain",
+                    buffers: [vertexBufferLayout]
+                },
+                fragment: {
+                    module: cellShaderModule,
+                    entryPoint: "fragmentMain",
+                    targets: [{
+                    format: canvasFormat
+                    }]
+                }
+                });
+
+                // After encoder.beginRenderPass()
+
+                const pass = encoder.beginRenderPass({
+                colorAttachments: [{
+                    view: context.getCurrentTexture().createView(),
+                    loadOp: "clear",
+                    clearValue: { r: 0, g: 0, b: 0.4, a: 1 }, // New line
+                    storeOp: "store",
+                }],
+                });
+
+                pass.setPipeline(cellPipeline);
+                pass.setVertexBuffer(0, vertexBuffer);
+                pass.draw(vertices.length / 2); // 6 vertices
+
+                // before pass.end()
+
+                pass.end();
+
+                // Finish the command buffer and immediately submit it.
+                device.queue.submit([encoder.finish()]);
+            }
+
+            Run();
+
+        </script>
+
+        <script>
+        var RenderCanvas = document.getElementById("RenderCanvas");
+        
+        function printCanvasResolution(canvas) {
+            if (canvas instanceof HTMLCanvasElement) {
+                console.log(`Canvas 分辨率: ${canvas.width} x ${canvas.height}`);
+            } else {
+                console.log('传入的不是一个有效的 canvas 元素');
+            }
+        }
+        function resizeCanvasToDisplaySize(canvas) {
+            // 获取浏览器中canvas的显示大小
+            var width = canvas.clientWidth;
+            var height = canvas.clientHeight;
+            
+            // 检查canvas的大小是否与其显示大小匹配
+            if (canvas.width !== width || canvas.height !== height) {
+                // 如果不匹配，将canvas的大小设置为其显示大小
+                canvas.width = width;
+                canvas.height = height;
+            }
+            printCanvasResolution(canvas);
+        }
+        
+        // 当窗口大小改变时，调整canvas的大小
+        window.addEventListener('resize', function() {
+            resizeCanvasToDisplaySize(RenderCanvas);
+        });
+        
+        // 初始时，也需要调整canvas的大小
+        resizeCanvasToDisplaySize(RenderCanvas);
+        </script>
+    </body>
+</html>
