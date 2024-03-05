@@ -1,5 +1,5 @@
 import { EngineInstance } from "../Engine.js";
-import { VertexBufferHandle } from "./RenderUtilsTypes.js";
+import { VertexBufferInfo } from "./WebGPURender/WebGPURender.js";
 
 export interface Render
 {
@@ -7,7 +7,7 @@ export interface Render
 
     Init() : void;
 
-    createVertexBuffer(size : number) : VertexBufferHandle;
+    createVertexBuffer(size : number) : VertexBufferInfo;
 
-    setVertexBufferData(buffer : VertexBufferHandle, data : Float32Array) : void;
+    setVertexBufferData(buffer : VertexBufferInfo, data : Float32Array) : void;
 }

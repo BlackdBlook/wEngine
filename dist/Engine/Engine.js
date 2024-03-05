@@ -1,5 +1,5 @@
 import { DrawOneTriangles } from "../Content/Levels/DrawOneTriangles.js";
-import { WebGPURender } from "./Render/WebGPURender.js";
+import { WebGPURender } from "./Render/WebGPURender/WebGPURender.js";
 export let EngineInstance;
 export class Engine {
     IsWebGPUSupport;

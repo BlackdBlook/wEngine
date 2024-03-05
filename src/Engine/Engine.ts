@@ -1,7 +1,9 @@
 import { DrawOneTriangles } from "../Content/Levels/DrawOneTriangles.js";
 import { Level } from "./CoreObject/Level.js";
+import { Material } from "./Render/Material/Material.js";
 import {Render} from "./Render/Render.js";
-import { WebGPURender } from "./Render/WebGPURender.js";
+import { WebGPUMaterial } from "./Render/WebGPURender/WebGPUMaterial.js";
+import { WebGPURender } from "./Render/WebGPURender/WebGPURender.js";
 
 export let EngineInstance : Engine;
 export class Engine
@@ -54,7 +56,8 @@ export class Engine
         {
             this.currentLevel?.update(this.deltaTime);
             this.CurrentRender.RenderScene(this.currentLevel);
-            
+            let fps = (1000 / this.deltaTime).toFixed();
+            document.title = 'wEngine-fps:' + fps;
             this.lastRunTime = now;
         } else 
         {
@@ -92,6 +95,4 @@ export class Engine
         // 将canvas元素添加到body中
         document.body.appendChild(canvas);
     }
-    
-
 }
