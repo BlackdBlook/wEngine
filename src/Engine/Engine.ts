@@ -61,11 +61,12 @@ export class Engine
             this.lastRunTime = now;
         } else 
         {
-            const delay = this.limit - (now - this.lastRunTime);
-            await new Promise(resolve => {
-                setTimeout(() => resolve("test"), delay);
-            });
+            // const delay = this.limit - (now - this.lastRunTime);
+            // await new Promise(resolve => {
+            //     setTimeout(() => resolve("test"), 0.01);
+            // });
         }        
+        // requestAnimationFrame(await this.EngineLoop);
     }
 
     GetWindow() : HTMLCanvasElement

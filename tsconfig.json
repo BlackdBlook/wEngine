@@ -34,8 +34,11 @@
     "typeRoots": [
       "./node_modules/@types",
       "./node_modules/@webgpu/types",
+      // "./node_modules/vite-plugin-glsl/*",
       ],
-    // "types": ["@webgpu/types"],
+    // "types": [
+    //   "vite-plugin-glsl/ext"
+    // ],
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
     // "allowImportingTsExtensions": true,               /* Allow imports to include TypeScript file extensions. Requires '--moduleResolution bundler' and either '--noEmit' or '--emitDeclarationOnly' to be set. */

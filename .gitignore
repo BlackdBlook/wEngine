@@ -38,3 +38,5 @@ node_modules/      # 忽略Node.js依赖模块目录（如果使用Yarn，可忽
 #.history/         # 忽略历史记录文件目录
 # 构建工具生成的文件
 # 本地数据库文件
+/dist
+/node_modules
