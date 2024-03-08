@@ -5,7 +5,7 @@ import { Engine } from "../../Engine/Engine.js";
 import { Material } from "../../Engine/Render/Material/Material.js";
 import { RenderCommand } from "../../Engine/Render/RenderCommand.js";
 import { VertexBufferInfo } from "../../Engine/Render/WebGPURender/WebGPURender.js";
-import shader1  from "../../Content/Shader/wgsl/DrawOneTriangles.wgsl"
+import shader1  from "../Shader/wgsl/DrawOneTriangles.wgsl"
 
 class Triangles extends LevelObject
 {
@@ -16,7 +16,8 @@ class Triangles extends LevelObject
     {
         super();
         let render = Engine.instance.CurrentRender;
-
+        console.log(shader1);
+        
         this.material = render.CreateMaterial(shader1);
         // this.material.setBufferVector3(1, "grid", new Vector3(0.5,0.5,0.5));
 

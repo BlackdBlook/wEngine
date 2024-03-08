@@ -1,7 +1,7 @@
 import { Vector3 } from "math.gl";
 import { Level } from "../../Engine/CoreObject/Level.js";
 import { LevelObject } from "../../Engine/CoreObject/LevelObject.js";
-import { Engine.instance } from "../../Engine/Engine.js";
+import { Engine } from "../../Engine/Engine.js";
 import { Material } from "../../Engine/Render/Material/Material.js";
 import { RenderCommand } from "../../Engine/Render/RenderCommand.js";
 import { VertexBufferInfo } from "../../Engine/Render/WebGPURender/WebGPURender.js";
@@ -36,7 +36,6 @@ class InstanceTriangles extends LevelObject
         // let shader = ShaderCode;
 
         this.material = render.CreateMaterial(shader);
-        this.material.setBufferVector3(0, "grid", new Vector3(0.5,0.5,0.5));
 
         const vertices : Float32Array = new Float32Array([
             //   X,    Y,

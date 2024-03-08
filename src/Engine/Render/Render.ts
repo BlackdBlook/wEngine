@@ -1,4 +1,4 @@
-import { Engine.instance } from "../Engine.js";
+import { Engine } from "../Engine.js";
 import { VertexBufferInfo } from "./WebGPURender/WebGPURender.js";
 
 export interface Render

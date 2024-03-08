@@ -16,10 +16,12 @@ export class WebGPUUniformBufferBase implements GPUBufferBinding
 {
     buffer : GPUBuffer;
     def : VariableDefinition;
+    name : string = "uniform";
     constructor(device : GPUDevice, def : VariableDefinition)
     {
         this.def = def;
         this.buffer = device.createBuffer({
+            label : this.name,
             size: makeStructuredView(def).arrayBuffer.byteLength,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });

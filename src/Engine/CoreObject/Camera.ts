@@ -30,8 +30,7 @@ export class Camera
     {
         let GlobalUniformBuffer = WebGPUGlobalUniformManager.instance;
 
-        GlobalUniformBuffer.buffer.setBufferMatrix4x4("view", this.getViewMatrix());
-        GlobalUniformBuffer.buffer.setBufferMatrix4x4("projection", this.projectionMatrix);
+        GlobalUniformBuffer.set("GlobalUniform", {view : this.getViewMatrix(), projection : this.projectionMatrix});
     }
 
     update(deltaTime : number)

@@ -11,9 +11,9 @@ export default defineConfig({
     ],
     exclude: undefined,          // Glob pattern, or array of glob patterns to ignore
     warnDuplicatedImports: true, // Warn if the same chunk was imported multiple times
-    defaultExtension: 'glsl',    // Shader suffix when no extension is specified
+    defaultExtension: 'wgsl',    // Shader suffix when no extension is specified
     compress: false,             // Compress output shader code
     watch: true,                 // Recompile shader on change
-    root: '/Content/Shader/wgsl/'                    // Directory for root imports
+    root: '/'                    // Directory for root imports
   })]
 });
