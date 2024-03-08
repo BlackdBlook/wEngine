@@ -24,8 +24,6 @@ export class WebGPUMaterial extends Material
 {
     render : WebGPURender;
 
-    uniformBuffer : Array<WebGPUUniformBuffer>;
-
     MaterialType : MaterialType = MaterialType.Opaque;
 
     pipeLine : GPURenderPipeline;
@@ -39,12 +37,11 @@ export class WebGPUMaterial extends Material
         super(shaderCode);
         this.shaderCode = shaderCode;
         this.render = Engine.instance.CurrentRender;
-        this.uniformBuffer = new Array<WebGPUUniformBuffer>;
         this.pipeLine = this.render.createRenderPipeline(shaderCode);
         this.bindGroups = new WebGPUBindGroups(this.render.device ,this.pipeLine, makeShaderDataDefinitions(shaderCode));
     }
 
-    setBuffer(name : string, value : any)
+    override setValue(name : string, value : any)
     {
         this.bindGroups.setValue(name, value);
     }
@@ -53,15 +50,13 @@ export class WebGPUMaterial extends Material
     {
         // 绑定全局
         let pass = check(check(context as WebGPURenderContext).pass);
-        WebGPUGlobalUniformManager.instance.bind(pass, this);
-        
-        if(this.uniformBuffer.length == 0)
-        {
-            // 没有额外绑定
-            return;
-        }
         
         this.bindGroups.bind(pass);
+        
+        if(this.bindGroups.bindGlobalUniform)
+        {
+            WebGPUGlobalUniformManager.instance.bind(pass, this);
+        }
     }
 
     protected bindShaderModule(context : RenderContext)

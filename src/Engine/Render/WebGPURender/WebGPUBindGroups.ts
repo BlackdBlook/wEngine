@@ -1,6 +1,7 @@
 import { makeStructuredView } from "webgpu-utils";
 import { ShaderDataDefinitions, WebGPUUniformBuffer } from "./WebGPUUniformBuffer";
 import { check } from "../../Utils";
+import { WebGPUGlobalUniformManager } from "../../CoreObject/WebGPUGlobalUniformManager";
 
 export class GPUBindGroupEntryImpl implements GPUBindGroupEntry
 {
@@ -22,9 +23,11 @@ export class WebGPUBindGroups
 {
     values = new Map<string, WebGPUUniformBuffer>();
     groups = new Map<number, GPUBindGroup>();
-
+    bindGlobalUniform : boolean = false;
+    device : GPUDevice;
     constructor(device : GPUDevice, pipeline : GPURenderPipeline, datas : ShaderDataDefinitions)
     {
+        this.device = device;
         let groupInfos = new Map<number, Array<GPUBindGroupEntryImpl>>();
 
         let keys = Object.keys(datas.uniforms);
@@ -37,9 +40,13 @@ export class WebGPUBindGroups
             }
 
             let uniform = datas.uniforms[value];
-            if(uniform.group == 0)
+            if(uniform.group == 0 && value === "GlobalUniform")
             {
-                throw new Error("uniform.group == 0, 0被GlobalUniform占用");
+                // 0是GlobalUniformBuffer，不需要在这里绑定
+                this.bindGlobalUniform = true;
+                console.log("need bind global");
+                
+                return;
             }
             
             let buffer = new WebGPUUniformBuffer(device, uniform);
@@ -57,15 +64,13 @@ export class WebGPUBindGroups
             this.values.set(value, buffer);
         });
 
-        let layout = pipeline.getBindGroupLayout(0);
-
         groupInfos.forEach((value: GPUBindGroupEntryImpl[], key: number, map: Map<number, GPUBindGroupEntryImpl[]>)=>{
+            let layout = pipeline.getBindGroupLayout(key);
             const bindGroup = device.createBindGroup({
                 label: "uniform",
                 layout: layout,
                 entries: value,
             });
-
             this.groups.set(key, bindGroup);
         });
     }
@@ -79,8 +84,10 @@ export class WebGPUBindGroups
 
     setValue(name : string, value : any)
     {
-        let target = this.values.get(name);
-        let view = makeStructuredView(check(target).def);
+        let target = check(this.values.get(name));
+        let view = makeStructuredView(target.def);
         view.set(value);
+
+        this.device.queue.writeBuffer(target.buffer, 0, view.arrayBuffer);
     }
 }

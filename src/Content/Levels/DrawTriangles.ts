@@ -16,11 +16,10 @@ class Triangles extends LevelObject
     {
         super();
         let render = Engine.instance.CurrentRender;
-        console.log(shader1);
-        
+
         this.material = render.CreateMaterial(shader1);
         // this.material.setBufferVector3(1, "grid", new Vector3(0.5,0.5,0.5));
-
+        this.material.setValue("color", new Vector3(0.5, 0.5, 0.5));
         const vertices : Float32Array = new Float32Array([
             //   X,    Y,
             -0.8, -0.8, // Triangle 1 (Blue)
@@ -45,7 +44,7 @@ class Triangles extends LevelObject
     }
 }
 
-export class DrawOneTriangles extends Level
+export class DrawTriangles extends Level
 {
     constructor()
     {

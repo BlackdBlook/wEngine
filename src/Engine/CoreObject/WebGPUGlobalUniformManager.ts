@@ -4,25 +4,23 @@ import { Material } from "../Render/Material/Material.js";
 import { ShaderDataDefinitions, WebGPUUniformBuffer } from "../Render/WebGPURender/WebGPUUniformBuffer.js";
 import { Camera } from "./Camera.js";
 import { check } from "../Utils.js";
-import globalUniformShader from "../../Content/Shader/wgsl/GlobalUniform.wgsl"
 import { GPUBindGroupEntryImpl, WebGPUBindGroups } from "../Render/WebGPURender/WebGPUBindGroups.js";
 import { WebGPUMaterial } from "../Render/WebGPURender/WebGPUMaterial.js";
+import globalUniformShader from "../../Content/Shader/wgsl/GlobalUniform.wgsl"
 
 export class WebGPUBindGroupGlobalManager
 {
     values = new Map<string, WebGPUUniformBuffer>();
     groups = new Map<Material, GPUBindGroup>();
-    groupInfo = new Array<GPUBindGroupEntryImpl>();
+    groupInfo = new Array<GPUBindGroupEntryImpl>;
     device : GPUDevice;
     constructor(device : GPUDevice, datas : ShaderDataDefinitions)
     {
         this.device = device;
         let keys = Object.keys(datas.uniforms);
-
         // 获取所有的Uniform变量
         keys.forEach((value: string, index: number, array: string[])=>{
-            console.log(value);
-            
+
             if(this.values.has(value))
             {
                 throw new Error("Uniform变量名重复");
@@ -31,14 +29,15 @@ export class WebGPUBindGroupGlobalManager
             let uniform = datas.uniforms[value];
             if(uniform.group != 0)
             {
-                throw new Error("uniform.group != 0, GlobalUniform只能使用0");
+                return;
+                // throw new Error("uniform.group != 0, GlobalUniform只能使用0");
             }
             
             let buffer = new WebGPUUniformBuffer(device, uniform);
             buffer.name = value;
             
             this.groupInfo.push(new GPUBindGroupEntryImpl(uniform.binding, buffer));
-            
+
             // 收集变量名
             this.values.set(value, buffer);
         });
@@ -47,11 +46,14 @@ export class WebGPUBindGroupGlobalManager
     private createGroup(material : Material) : GPUBindGroup
     {
         let mat = check(material as WebGPUMaterial);
+        let layout = mat.pipeLine.getBindGroupLayout(0);
+
+        let buffers : Iterable<GPUBindGroupEntry> = this.groupInfo;
 
         const bindGroup = mat.render.device.createBindGroup({
             label: "GlobalUniform",
-            layout: mat.pipeLine.getBindGroupLayout(0),
-            entries: this.groupInfo,
+            layout: layout,
+            entries: buffers,
         });
         
         return bindGroup;

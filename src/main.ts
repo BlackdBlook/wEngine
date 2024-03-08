@@ -3,7 +3,10 @@ import { Engine } from "./Engine/Engine.js";
 let e = Engine.instance;
 await e.Init();
 // e.EngineLoop();
-while(true)
+
+function loop()
 {
-    await e.EngineLoop();
+    e.EngineLoop();
+    requestAnimationFrame(loop);
 }
+loop();

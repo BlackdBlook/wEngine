@@ -1,9 +1,8 @@
-import { DrawOneTriangles } from "../Content/Levels/DrawOneTriangles.js";
+import { DrawTriangles } from "../Content/Levels/DrawTriangles.js";
 import { WebGPUGlobalUniformManager } from "./CoreObject/WebGPUGlobalUniformManager.js";
 import { Level } from "./CoreObject/Level.js";
-import {Render} from "./Render/Render.js";
-import { WebGPUMaterial } from "./Render/WebGPURender/WebGPUMaterial.js";
 import { WebGPURender } from "./Render/WebGPURender/WebGPURender.js";
+import { check } from "./Utils.js";
 
 export class Engine
 {
@@ -40,33 +39,41 @@ export class Engine
 
         WebGPUGlobalUniformManager.instance.init(this);
 
-        this.currentLevel = new DrawOneTriangles();
+        this.currentLevel = new DrawTriangles();
         
         // this.EngineLoop();
     }
 
     lastRunTime : number = 0;
-    limit = 1000 / 60; // 60 times per second
     deltaTime : number = 0;
-    async EngineLoop()
+    EngineLoop()
     {   
         const now = Date.now();
         this.deltaTime = now - this.lastRunTime;
-        if (this.lastRunTime == 0 || this.deltaTime >= this.limit) 
+        const limit = 1000 / 60; // 60 times per second
+        if (this.lastRunTime == 0 || this.deltaTime >= limit) 
         {
-            this.currentLevel?.update(this.deltaTime);
+            this.currentLevel.update(this.deltaTime);
             this.CurrentRender.RenderScene(this.currentLevel);
-            let fps = (1000 / this.deltaTime).toFixed();
-            document.title = 'wEngine-fps:' + fps;
+            this.updateTitleFpsText();
             this.lastRunTime = now;
-        } else 
+        }
+    }
+
+    lastUpdateTime : number = -1;
+
+    updateTitleFpsText()
+    {
+        this.lastUpdateTime -= this.deltaTime;
+        if(this.lastUpdateTime <= 0)
         {
-            const delay = this.limit - (now - this.lastRunTime);
-            await new Promise(resolve => {
-                setTimeout(() => resolve("test"), delay);
-            });
-        }        
-        // requestAnimationFrame(await this.EngineLoop);
+            const fps = (1000 / this.deltaTime).toFixed();
+            // document.title = 'wEngine-fps:' + fps;
+            let p = document.getElementById("fpsText");
+            check(p).textContent = fps;
+            check(p).style.color = 'white';
+            this.lastUpdateTime = 100;
+        }
     }
 
     GetWindow() : HTMLCanvasElement
@@ -74,11 +81,7 @@ export class Engine
         let ans = document.getElementById("RenderCanvas") as HTMLCanvasElement;
         if(ans == null)
         {
-            console.log("Create defult Canvas");
             this.addCanvas();
-        }else
-        {
-            console.log("Find RenderCanvas");
         }
         return ans;
     }

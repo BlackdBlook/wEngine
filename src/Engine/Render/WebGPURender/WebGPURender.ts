@@ -138,9 +138,6 @@ export class WebGPURender
         if(!this.device)
         {
             throw new Error("No GPUDevice found.");
-        }else
-        {
-            console.log("Find Device");
         }
     }
 
