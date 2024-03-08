@@ -1,4 +1,4 @@
-import { EngineInstance } from "../../Engine.js";
+import { Engine } from "../../Engine.js";
 import { Matrix4, Vector2, Vector3, Vector4 } from "math.gl";
 export class RenderContext
 {
@@ -9,15 +9,7 @@ export class Material
 {
     constructor(shaderCode : string){}
 
-    setBufferFloat(index : number, name : string, value : number){}
-
-    setBufferVector2(index : number, name : string, value : Vector2){}
-
-    setBufferVector3(index : number, name : string, value : Vector3){}
-
-    setBufferVector4(index : number, name : string, value : Vector4){}
-
-    setBufferMatrix4x4(index : number, name : string, value : Matrix4){}
+    setValue(name : string, value : any){}
 
     protected bindUniformBuffer(context : RenderContext){}
 
@@ -32,5 +24,5 @@ export class Material
 
 export function CreateMaterial(shaderCode : string) : Material
 {
-    return EngineInstance.CurrentRender.CreateMaterial(shaderCode);
+    return Engine.instance.CurrentRender.CreateMaterial(shaderCode);
 }

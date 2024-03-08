@@ -1,22 +1,20 @@
 import { DrawOneTriangles } from "../Content/Levels/DrawOneTriangles.js";
+import { WebGPUGlobalUniformManager } from "./CoreObject/WebGPUGlobalUniformManager.js";
 import { Level } from "./CoreObject/Level.js";
-import { Material } from "./Render/Material/Material.js";
 import {Render} from "./Render/Render.js";
 import { WebGPUMaterial } from "./Render/WebGPURender/WebGPUMaterial.js";
 import { WebGPURender } from "./Render/WebGPURender/WebGPURender.js";
 
-export let EngineInstance : Engine;
 export class Engine
 {
+    public static instance : Engine = new Engine();
     IsWebGPUSupport : boolean;
     KeepEngineLoop : boolean = true;
     CurrentRender! : WebGPURender;
     RenderCanvas! : HTMLCanvasElement;
     currentLevel! : Level;
-    constructor()
+    private constructor()
     {
-        EngineInstance = this;
-
         if ('gpu' in navigator) {
             console.log("WebGPU is supported!");
             this.IsWebGPUSupport = true;
@@ -40,6 +38,8 @@ export class Engine
 
         await this.CurrentRender.Init();
 
+        WebGPUGlobalUniformManager.instance.init(this);
+
         this.currentLevel = new DrawOneTriangles();
         
         // this.EngineLoop();
@@ -61,10 +61,10 @@ export class Engine
             this.lastRunTime = now;
         } else 
         {
-            // const delay = this.limit - (now - this.lastRunTime);
-            // await new Promise(resolve => {
-            //     setTimeout(() => resolve("test"), 0.01);
-            // });
+            const delay = this.limit - (now - this.lastRunTime);
+            await new Promise(resolve => {
+                setTimeout(() => resolve("test"), delay);
+            });
         }        
         // requestAnimationFrame(await this.EngineLoop);
     }

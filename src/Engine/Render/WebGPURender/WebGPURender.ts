@@ -1,5 +1,5 @@
 import { Level } from "../../CoreObject/Level.js";
-import { EngineInstance } from "../../Engine.js";
+import { Engine } from "../../Engine.js";
 import { check } from "../../Utils.js";
 import { Material } from "../Material/Material.js";
 import { Render } from "../Render.js";
@@ -146,7 +146,7 @@ export class WebGPURender
 
     bindCanvas()
     {
-        let canvas = EngineInstance.RenderCanvas;
+        let canvas = Engine.instance.RenderCanvas;
 
         let context = canvas.getContext("webgpu");
         if(context == null)

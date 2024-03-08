@@ -1,8 +1,10 @@
-import { EngineInstance } from "../../Engine.js";
+import { EntryPoints, makeShaderDataDefinitions, makeStructuredView, StructDefinitions, VariableDefinition, VariableDefinitions } from "webgpu-utils";
+import { WebGPUGlobalUniformManager } from "../../CoreObject/WebGPUGlobalUniformManager.js";
+import { Engine } from "../../Engine.js";
 import { check, checkInfo } from "../../Utils.js";
 import { Material, RenderContext } from "../Material/Material.js";
 import { WebGPURender } from "./WebGPURender.js";
-import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer.js";
+import { ShaderDataDefinitions, WebGPUUniformBuffer } from "./WebGPUUniformBuffer.js";
 import { Matrix4, Vector2, Vector3, Vector4 } from "math.gl";
 
 export class WebGPURenderContext
@@ -17,79 +19,138 @@ export enum MaterialType
     Mask,
 }
 
+class GPUBindGroupEntryImpl implements GPUBindGroupEntry
+{
+    binding: number;
+    resource: GPUBindingResource;
+
+    constructor(binding: number, buffer: WebGPUUniformBuffer)
+    {
+        this.binding = binding;
+        this.resource = buffer;
+    }
+}
+
+interface uniformData {
+    [x : string] : any;
+}
+
+class WebGPUBindGroups
+{
+    values = new Map<string, WebGPUUniformBuffer>();
+    groups = new Map<number, GPUBindGroup>();
+    constructor(device : GPUDevice, pipeline : GPURenderPipeline, datas : ShaderDataDefinitions)
+    {
+        this.createBindGroup(device, pipeline, datas);
+    }
+
+    createBindGroup(device : GPUDevice, pipeline : GPURenderPipeline, datas : ShaderDataDefinitions)
+    {
+        let groupInfos = new Map<number, Array<GPUBindGroupEntryImpl>>();
+
+        let keys = Object.keys(datas.uniforms);
+
+        // 获取所有的Uniform变量
+        keys.forEach((value: string, index: number, array: string[])=>{
+            if(this.values.has(value))
+            {
+                throw new Error("Uniform变量名重复");
+            }
+
+            let uniform = datas.uniforms[value];
+            if(uniform.group == 0)
+            {
+                throw new Error("uniform.group == 0, 0被GlobalUniform占用");
+            }
+            
+            let buffer = new WebGPUUniformBuffer(device, uniform);
+            
+            // 收集Group标号
+            let group = groupInfos.get(uniform.group);
+            if(!group)
+            {
+                group = new Array<GPUBindGroupEntryImpl>;
+                groupInfos.set(uniform.group, group);
+            }
+            group.push(new GPUBindGroupEntryImpl(uniform.binding, buffer));
+            
+            // 收集变量名
+            this.values.set(value, buffer);
+        });
+
+        let layout = pipeline.getBindGroupLayout(0);
+
+        groupInfos.forEach((value: GPUBindGroupEntryImpl[], key: number, map: Map<number, GPUBindGroupEntryImpl[]>)=>{
+            const bindGroup = device.createBindGroup({
+                label: "Cell renderer bind group",
+                layout: layout,
+                entries: value,
+            });
+
+            this.groups.set(key, bindGroup);
+        });
+    }
+
+    bind(pass : GPURenderPassEncoder)
+    {
+        this.groups.forEach((value: GPUBindGroup, key: number, map: Map<number, GPUBindGroup>)=>{
+            pass.setBindGroup(key, value);
+        });
+    }
+
+
+
+    setValue(name : string, value : any)
+    {
+        let target = this.values.get(name);
+        let view = makeStructuredView(check(target).def);
+        view.set(value);
+    }
+}
+
+
 export class WebGPUMaterial extends Material
 {
     render : WebGPURender;
 
-    uniformBuffer : Map<number, WebGPUUniformBuffer>;
+    uniformBuffer : Array<WebGPUUniformBuffer>;
 
     MaterialType : MaterialType = MaterialType.Opaque;
 
     pipeLine : GPURenderPipeline;
 
+    shaderCode : string = "";
+
+    bindGroups : WebGPUBindGroups;
+
     constructor(shaderCode : string)
     {
         super(shaderCode);
-        this.render = EngineInstance.CurrentRender;
-        this.uniformBuffer = new Map<number, WebGPUUniformBuffer>;
+        this.shaderCode = shaderCode;
+        this.render = Engine.instance.CurrentRender;
+        this.uniformBuffer = new Array<WebGPUUniformBuffer>;
         this.pipeLine = this.render.createRenderPipeline(shaderCode);
+        this.bindGroups = new WebGPUBindGroups(this.render.device ,this.pipeLine, makeShaderDataDefinitions(shaderCode));
     }
 
-    setBufferFloat(index : number, name : string, value : number)
+    setBuffer(name : string, value : any)
     {
-        let buffer = this.getBuffer(index);
-        buffer.setBufferFloat(name, value);
-    }
-
-    setBufferVector2(index : number, name : string, value : Vector2)
-    {
-        let buffer = this.getBuffer(index);
-        buffer.setBufferVector2(name, value);
-    }
-
-    setBufferVector3(index : number, name : string, value : Vector3)
-    {
-        let buffer = this.getBuffer(index);
-        buffer.setBufferVector3(name, value);
-    }
-
-    setBufferVector4(index : number, name : string, value : Vector4)
-    {
-        let buffer = this.getBuffer(index);
-        buffer.setBufferVector4(name, value);
-    }
-
-    setBufferMatrix4x4(index : number, name : string, value : Matrix4)
-    {
-        let buffer = this.getBuffer(index);
-        buffer.setBufferMatrix4x4(name, value);
-    }
-
-    getBuffer(index : number) : WebGPUUniformBuffer
-    {
-        let buffer = this.uniformBuffer.get(index);
-        if(!buffer)
-        {
-            buffer = new WebGPUUniformBuffer(this.render);
-            this.uniformBuffer.set(index, buffer);
-        }
-        return buffer;
+        this.bindGroups.setValue(name, value);
     }
 
     protected bindUniformBuffer(context : RenderContext)
     {
-        if(this.uniformBuffer.size == 0)
+        // 绑定全局
+        let pass = check(check(context as WebGPURenderContext).pass);
+        WebGPUGlobalUniformManager.instance.bind(pass, this);
+        
+        if(this.uniformBuffer.length == 0)
         {
+            // 没有额外绑定
             return;
         }
-
-        let gContext = check(context as WebGPURenderContext);
         
-        this.uniformBuffer.forEach((value: WebGPUUniformBuffer, key: number, map: Map<number, WebGPUUniformBuffer>)=>
-            {
-                value.bindToMaterial(check(gContext.pass), this, key);
-            }
-        );
+        this.bindGroups.bind(pass);
     }
 
     protected bindShaderModule(context : RenderContext)

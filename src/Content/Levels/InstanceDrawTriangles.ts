@@ -1,7 +1,7 @@
 import { Vector3 } from "math.gl";
 import { Level } from "../../Engine/CoreObject/Level.js";
 import { LevelObject } from "../../Engine/CoreObject/LevelObject.js";
-import { EngineInstance } from "../../Engine/Engine.js";
+import { Engine.instance } from "../../Engine/Engine.js";
 import { Material } from "../../Engine/Render/Material/Material.js";
 import { RenderCommand } from "../../Engine/Render/RenderCommand.js";
 import { VertexBufferInfo } from "../../Engine/Render/WebGPURender/WebGPURender.js";
@@ -15,7 +15,7 @@ class InstanceTriangles extends LevelObject
     constructor()
     {
         super();
-        let render = EngineInstance.CurrentRender;
+        let render = Engine.instance.CurrentRender;
 
         let shader = `
         @group(0) @binding(0) 
