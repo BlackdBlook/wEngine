@@ -1,7 +1,7 @@
-import { makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
+import { ShaderDataDefinitions, makeShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
 import { Engine } from "../Engine.js";
 import { Material } from "../Render/Material/Material.js";
-import { ShaderDataDefinitions, WebGPUUniformBuffer } from "../Render/WebGPURender/WebGPUUniformBuffer.js";
+import { WebGPUUniformBuffer } from "../Render/WebGPURender/WebGPUUniformBuffer.js";
 import { Camera } from "./Camera.js";
 import { check } from "../Utils.js";
 import { GPUBindGroupEntryImpl, WebGPUBindGroups } from "../Render/WebGPURender/WebGPUBindGroups.js";

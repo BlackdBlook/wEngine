@@ -4,8 +4,7 @@ import { Engine } from "../../Engine.js";
 import { check, checkInfo } from "../../Utils.js";
 import { Material, RenderContext } from "../Material/Material.js";
 import { WebGPURender } from "./WebGPURender.js";
-import { ShaderDataDefinitions, WebGPUUniformBuffer } from "./WebGPUUniformBuffer.js";
-import { Matrix4, Vector2, Vector3, Vector4 } from "math.gl";
+import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer.js";
 import { WebGPUBindGroups } from "./WebGPUBindGroups.js";
 
 export class WebGPURenderContext
@@ -56,6 +55,7 @@ export class WebGPUMaterial extends Material
         if(this.bindGroups.bindGlobalUniform)
         {
             WebGPUGlobalUniformManager.instance.bind(pass, this);
+            console.log("bind global");
         }
     }
 

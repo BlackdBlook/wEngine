@@ -1,17 +1,6 @@
 import { EntryPoints, StructDefinitions, VariableDefinition, VariableDefinitions, makeStructuredView } from "webgpu-utils";
 import { WebGPURender } from "./WebGPURender.js";
 
-export type ShaderDataDefinitions = {
-    uniforms: VariableDefinitions;
-    storages: VariableDefinitions;
-    samplers: VariableDefinitions;
-    textures: VariableDefinitions;
-    storageTextures: VariableDefinitions;
-    externalTextures: VariableDefinitions;
-    structs: StructDefinitions;
-    entryPoints: EntryPoints;
-};
-
 export class WebGPUUniformBufferBase implements GPUBufferBinding
 {
     buffer : GPUBuffer;

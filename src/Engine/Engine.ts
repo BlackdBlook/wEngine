@@ -3,6 +3,7 @@ import { WebGPUGlobalUniformManager } from "./CoreObject/WebGPUGlobalUniformMana
 import { Level } from "./CoreObject/Level.js";
 import { WebGPURender } from "./Render/WebGPURender/WebGPURender.js";
 import { check } from "./Utils.js";
+import { LevelDrawCube } from "../Content/Levels/LevelDrawCube.js";
 
 export class Engine
 {
@@ -39,7 +40,8 @@ export class Engine
 
         WebGPUGlobalUniformManager.instance.init(this);
 
-        this.currentLevel = new DrawTriangles();
+        // this.currentLevel = new DrawTriangles();
+        this.currentLevel = new LevelDrawCube();
         
         // this.EngineLoop();
     }

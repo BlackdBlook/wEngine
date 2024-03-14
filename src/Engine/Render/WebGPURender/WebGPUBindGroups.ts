@@ -1,5 +1,5 @@
-import { makeStructuredView } from "webgpu-utils";
-import { ShaderDataDefinitions, WebGPUUniformBuffer } from "./WebGPUUniformBuffer";
+import { ShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
+import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer";
 import { check } from "../../Utils";
 import { WebGPUGlobalUniformManager } from "../../CoreObject/WebGPUGlobalUniformManager";
 
