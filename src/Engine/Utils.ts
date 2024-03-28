@@ -1,20 +1,17 @@
-export function check<T>(value : T) : NonNullable<T>
+export function check<T>(value : T, info : string = "") : NonNullable<T>
 {
     if(!value)
     {
-        throw new Error("check Value failed");
+        if(info.length == 0)
+        {
+            throw new Error(info);
+        }else
+        {
+            throw new Error("check Value failed");
+        }
     }
 
     return value!;
 }
 
-export function checkInfo<T>(value : T, message : string) : NonNullable<T>
-{
-    if(!value)
-    {
-        throw new Error(message);
-    }
-
-    return value!;
-}
 

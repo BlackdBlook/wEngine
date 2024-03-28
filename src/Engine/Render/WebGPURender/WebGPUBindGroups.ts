@@ -34,6 +34,7 @@ export class WebGPUBindGroups
 
         // 获取所有的Uniform变量
         keys.forEach((value: string, index: number, array: string[])=>{
+
             if(this.values.has(value))
             {
                 throw new Error("Uniform变量名重复");
@@ -65,6 +66,7 @@ export class WebGPUBindGroups
         });
 
         groupInfos.forEach((value: GPUBindGroupEntryImpl[], key: number, map: Map<number, GPUBindGroupEntryImpl[]>)=>{
+            
             let layout = pipeline.getBindGroupLayout(key);
             const bindGroup = device.createBindGroup({
                 label: "uniform",

@@ -8,8 +8,8 @@ export class Camera
     private pos = new Vector3;
     private rot = new Quaternion;
     private viewMatCache = new Matrix4;
-    private needUpdateviewMatCache = true;
     private projectionMatrix : Matrix4 = this.createProjectionMatrix();
+    needUpdateviewMatCache = true;
 
     private constructor()
     {
@@ -57,9 +57,18 @@ export class Camera
         return this.rot;
     }
 
-    setRot(newRot : Quaternion)
+    setRot(newRot : Quaternion | Vector3)
     {
-        this.rot = newRot;
+        if(newRot instanceof Quaternion)
+        {
+            this.rot = newRot;
+        }else if(newRot instanceof Vector3)
+        {
+            this.rot = new Quaternion();
+            this.rot.rotateZ(newRot.z);
+            this.rot.rotateY(newRot.y);
+            this.rot.rotateX(newRot.x);
+        }
         this.needUpdateviewMatCache = true;
     }
 
@@ -68,20 +77,34 @@ export class Camera
         return this.projectionMatrix;
     }
 
+    getForwardVectorFromQuaternion(): Vector3 {
+        // Create a unit vector representing the forward direction (usually [0, 0, -1])
+        const forwardVector = new Vector3(0, 0, -1);
+      
+        // Rotate the forward vector by the given quaternion
+        forwardVector.transformByQuaternion(this.rot);
+      
+        return forwardVector;
+    }
+
     getViewMatrix() : Matrix4
     {
         if(this.needUpdateviewMatCache)
         {
             // 计算前向量
-            let forward4 = new Vector4(this.rot.transformVector4([0, 0, -1, 0]));
-            
-            let forward3 = new Vector3(forward4.x, forward4.y, forward4.z);
-            let center = this.pos.add(forward3);
+            const forawrd = this.getForwardVectorFromQuaternion()
+            const pos = new Vector3(this.pos);
+            let center = pos.add(forawrd);
             this.viewMatCache = this.viewMatCache.lookAt({
                 eye : this.pos,
                 center : center,
                 up : new Vector3(0, 1, 0), //TODO
             });
+                
+            console.log(pos);       
+            // console.log(this.rot); 
+            
+            this.needUpdateviewMatCache = false;
         }
         return this.viewMatCache;
     }

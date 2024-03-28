@@ -1,7 +1,7 @@
 import { EntryPoints, makeShaderDataDefinitions, makeStructuredView, StructDefinitions, VariableDefinition, VariableDefinitions } from "webgpu-utils";
 import { WebGPUGlobalUniformManager } from "../../CoreObject/WebGPUGlobalUniformManager.js";
 import { Engine } from "../../Engine.js";
-import { check, checkInfo } from "../../Utils.js";
+import { check } from "../../Utils.js";
 import { Material, RenderContext } from "../Material/Material.js";
 import { WebGPURender } from "./WebGPURender.js";
 import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer.js";

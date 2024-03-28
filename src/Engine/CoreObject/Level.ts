@@ -12,8 +12,6 @@ export class Level
 
     update(deltaTime : number)
     {
-        console.log(123);
-        
         this.objects.forEach(Element=>{
             Element.update(deltaTime);
         });

@@ -24,7 +24,7 @@ export class LevelObject
     }
     
     // 世界缩放
-    private scaleValue : Vector3 = new Vector3();
+    private scaleValue : Vector3 = new Vector3(1,1,1);
     public set scale(v : Vector3) {
         this.scaleValue = v;
         this.modelMatCache = undefined;
@@ -54,7 +54,6 @@ export class LevelObject
             this.modelMatCache = this.modelMatCache.multiplyRight(new Matrix4().fromQuaternion(this.rotation));
             this.modelMatCache.scale(this.scaleValue);
         }
-        console.log(this.modelMatCache);
         
         return this.modelMatCache;
     }

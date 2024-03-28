@@ -59,7 +59,7 @@ export class CubeModel extends LevelObject
         super();
         
         let render = Engine.instance.CurrentRender;
-
+        
         this.material = render.CreateMaterial(shader1);
 
         this.vertexBuffer = render.createVertexBuffer(BoxVertices);

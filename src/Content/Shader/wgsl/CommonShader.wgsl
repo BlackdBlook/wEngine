@@ -7,6 +7,11 @@ struct VertexMainInput
     @location(2) uv: vec2f,
 };
 
+
+
+@group(1) @binding(0) 
+var<uniform> model : mat4x4<f32>;
+
 @vertex
 fn vertexMain(input: VertexMainInput) -> VertexOutput {
 
@@ -14,7 +19,7 @@ fn vertexMain(input: VertexMainInput) -> VertexOutput {
     vertInput.worldPos = input.worldPos;
     vertInput.normal = input.normal;
     vertInput.uv = input.uv;
-    return Vert(vertInput);;
+    return Vert(vertInput);; 
 }
 
 @fragment
