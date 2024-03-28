@@ -52,12 +52,9 @@ export class WebGPURender
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
         });
         
-        let ans = new VertexBufferInfo(vertexBuffer, data.length / 2);
+        let ans = new VertexBufferInfo(vertexBuffer, data.length / 8);
 
-        if(data)
-        {
-            this.setVertexBufferData(ans, data);
-        }
+        this.setVertexBufferData(ans, data);
 
         return ans;
     }
@@ -96,11 +93,19 @@ export class WebGPURender
     createRenderPipeline(shaderCode : string) : GPURenderPipeline
     {
         const vertexBufferLayout : GPUVertexBufferLayout = {
-            arrayStride: 8,
+            arrayStride: 32,
             attributes: [{
-              format: "float32x2",
-              offset: 0,
-              shaderLocation: 0, // Position, see vertex shader
+                format: "float32x3",
+                offset: 0,
+                shaderLocation: 0, // Position, see vertex shader
+            },{
+                format: "float32x3",
+                offset: 12,
+                shaderLocation: 1, // Position, see vertex shader
+            },{
+                format: "float32x2",
+                offset: 20,
+                shaderLocation: 2, // Position, see vertex shader
             }],
         };
 

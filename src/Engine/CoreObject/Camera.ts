@@ -35,7 +35,10 @@ export class Camera
 
     update(deltaTime : number)
     {
-
+        if(this.needUpdateviewMatCache)
+        {
+            this.updateGlobalUnifrom();
+        }
     }
 
     getPos() : Vector3

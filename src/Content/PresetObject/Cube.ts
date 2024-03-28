@@ -3,7 +3,7 @@ import { LevelObject } from "../../Engine/CoreObject/LevelObject";
 import { Engine } from "../../Engine/Engine";
 import { CreateMaterial, Material } from "../../Engine/Render/Material/Material";
 import { RenderCommand } from "../../Engine/Render/RenderCommand";
-import shader1  from "../Shader/wgsl/DrawOneTriangles.wgsl"
+import shader1  from "../Shader/wgsl/CommonShader.wgsl"
 import { VertexBufferInfo } from "../../Engine/Render/WebGPURender/WebGPURender";
 
 
@@ -70,7 +70,7 @@ export class CubeModel extends LevelObject
         
     }
     
-    update()
+    override update(deltaTime: number): void 
     {
         this.material.setValue("model", this.getModelMat());
     }

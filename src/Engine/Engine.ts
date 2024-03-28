@@ -4,6 +4,7 @@ import { Level } from "./CoreObject/Level.js";
 import { WebGPURender } from "./Render/WebGPURender/WebGPURender.js";
 import { check } from "./Utils.js";
 import { LevelDrawCube } from "../Content/Levels/LevelDrawCube.js";
+import { Camera } from "./CoreObject/Camera.js";
 
 export class Engine
 {
@@ -42,7 +43,7 @@ export class Engine
 
         // this.currentLevel = new DrawTriangles();
         this.currentLevel = new LevelDrawCube();
-        
+        this.currentLevel.init();
         // this.EngineLoop();
     }
 
@@ -56,6 +57,7 @@ export class Engine
         if (this.lastRunTime == 0 || this.deltaTime >= limit) 
         {
             this.currentLevel.update(this.deltaTime);
+            Camera.instance.update(this.deltaTime);
             this.CurrentRender.RenderScene(this.currentLevel);
             this.updateTitleFpsText();
             this.lastRunTime = now;

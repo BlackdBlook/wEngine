@@ -4,7 +4,7 @@ struct VertexMainInput
 {
     @location(0) worldPos: vec3f,
     @location(1) normal: vec3f,
-    @location(2) uv: vec3f,
+    @location(2) uv: vec2f,
 };
 
 @vertex
@@ -22,7 +22,7 @@ fn fragmentMain(input : VertexOutput) -> @location(0) vec4f {
     var fragInput : FragInput;
 
     fragInput.vertexOutput = input;
-    fragInput.baseColor = input.worldPos;
+    fragInput.baseColor = vec4f(1,1,1,1);
     
 
     return Frag(fragInput);

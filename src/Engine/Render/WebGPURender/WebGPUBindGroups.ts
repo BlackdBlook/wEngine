@@ -84,6 +84,10 @@ export class WebGPUBindGroups
 
     setValue(name : string, value : any)
     {
+        if(!this.values.get(name))
+        {
+            console.log(name);
+        }
         let target = check(this.values.get(name));
         let view = makeStructuredView(target.def);
         view.set(value);

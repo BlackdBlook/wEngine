@@ -55,7 +55,7 @@ export class WebGPUMaterial extends Material
         if(this.bindGroups.bindGlobalUniform)
         {
             WebGPUGlobalUniformManager.instance.bind(pass, this);
-            console.log("bind global");
+            // console.log("bind global");
         }
     }
 

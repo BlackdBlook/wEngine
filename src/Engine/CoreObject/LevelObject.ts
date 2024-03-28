@@ -6,7 +6,7 @@ export class LevelObject
     // 世界位置
     private position : Vector3 = new Vector3();
     public set pos(v : Vector3) {
-        this.pos = v;
+        this.position = v;
         this.modelMatCache = undefined;
     }
     public get pos() : Vector3 {
@@ -35,7 +35,7 @@ export class LevelObject
 
     modelMatCache : Matrix4 | undefined;
 
-    update()
+    update(deltaTime : number)
     {
 
     }
@@ -54,6 +54,8 @@ export class LevelObject
             this.modelMatCache = this.modelMatCache.multiplyRight(new Matrix4().fromQuaternion(this.rotation));
             this.modelMatCache.scale(this.scaleValue);
         }
+        console.log(this.modelMatCache);
+        
         return this.modelMatCache;
     }
 }
