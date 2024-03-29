@@ -7,7 +7,7 @@ import shader1  from "../Shader/wgsl/CommonShader.wgsl"
 import { VertexBufferInfo } from "../../Engine/Render/WebGPURender/WebGPURender";
 
 
-const BoxVertices = new Float32Array ([
+export const BoxVertices = new Float32Array ([
     -0.5, -0.5, -0.5,  0.0,  0.0, -1.0,  0.0, 0.0,  
      0.5, -0.5, -0.5,  0.0,  0.0, -1.0,  0.0, 1.0,  
      0.5,  0.5, -0.5,  0.0,  0.0, -1.0,  1.0, 1.0, 

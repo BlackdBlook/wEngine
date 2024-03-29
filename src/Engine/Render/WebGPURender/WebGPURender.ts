@@ -44,15 +44,22 @@ export class WebGPURender
         return new WebGPUMaterial(shaderCode);
     }
 
-    createVertexBuffer(data : Float32Array): VertexBufferInfo
+    createVertexBuffer(data : Float32Array, VretexNumber: number = -1): VertexBufferInfo
     {
         const vertexBuffer = this.device.createBuffer({
             label: "Cell vertices",
             size: data.byteLength,
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
         });
-        
-        let ans = new VertexBufferInfo(vertexBuffer, data.length / 8);
+        let num = 0;
+        if(VretexNumber == -1)
+        {
+            num = data.length / 8;
+        }else
+        {
+            num = VretexNumber;
+        }
+        let ans = new VertexBufferInfo(vertexBuffer, num);
 
         this.setVertexBufferData(ans, data);
 
@@ -90,24 +97,30 @@ export class WebGPURender
     //     return handle;
     // }
 
-    createRenderPipeline(shaderCode : string) : GPURenderPipeline
+    createRenderPipeline(shaderCode : string , layout : GPUVertexBufferLayout | undefined = undefined) : GPURenderPipeline
     {
-        const vertexBufferLayout : GPUVertexBufferLayout = {
-            arrayStride: 32,
-            attributes: [{
-                format: "float32x3",
-                offset: 0,
-                shaderLocation: 0, // Position, see vertex shader
-            },{
-                format: "float32x3",
-                offset: 12,
-                shaderLocation: 1, // Position, see vertex shader
-            },{
-                format: "float32x2",
-                offset: 20,
-                shaderLocation: 2, // Position, see vertex shader
-            }],
-        };
+        let vertexBufferLayout : GPUVertexBufferLayout | undefined;
+        if(!layout)
+        {
+            vertexBufferLayout = {
+                arrayStride: 32,
+                attributes: [{
+                    format: "float32x3",
+                    offset: 0,
+                    shaderLocation: 0, // Position, see vertex shader
+                },{
+                    format: "float32x3",
+                    offset: 12,
+                    shaderLocation: 1, // Position, see vertex shader
+                },{
+                    format: "float32x2",
+                    offset: 20,
+                    shaderLocation: 2, // Position, see vertex shader
+                }],
+            };
+        }else{
+            vertexBufferLayout = layout;
+        }
 
         const shaderModule : GPUShaderModule = 
             this.createShaderModule(shaderCode);
@@ -217,7 +230,7 @@ export class WebGPURender
 
         let commands = new Array<RenderCommand>;
         CurrentLevel.draw(commands);
-
+        
         commands.forEach(element => {
             check(element.material).bind(context);
             let bufferInfo = check(element.vertexBuffer);
