@@ -20,12 +20,7 @@ export class Level
     draw(RenderCommands : Array<RenderCommand>)
     {
         this.objects.forEach(element => {
-            let cmd = element.draw();
-
-            if(cmd)
-            {
-                RenderCommands.push(cmd);
-            }
+            element.draw(RenderCommands);
         });
     }
 }

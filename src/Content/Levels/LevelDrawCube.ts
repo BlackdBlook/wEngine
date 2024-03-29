@@ -6,10 +6,7 @@ import { CubeModel } from "../PresetObject/Cube";
 export class LevelDrawCube extends Level
 {
     init(): void {
-        let cam = Camera.instance;
-        // let rot = new Quaternion();
-        
-        // cam.setRot(rot);
+
         {
             let cube = new CubeModel();
             cube.pos = new Vector3(0, 0, -2);

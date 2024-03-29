@@ -103,4 +103,14 @@ export class Engine
         // 将canvas元素添加到body中
         document.body.appendChild(canvas);
     }
+
+    width : number = 500;
+    height : number = 500;
+    setWindowSize(width : number, height : number)
+    {
+        this.width = width;
+        this.height = height;
+        
+        Camera.instance.createProjectionMatrix(width, height);
+    }
 }

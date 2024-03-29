@@ -75,8 +75,9 @@ export class CubeModel extends LevelObject
         this.material.setValue("model", this.getModelMat());
     }
 
-    draw() : RenderCommand | undefined
+    draw(commands : Array<RenderCommand>)
     {
-        return this.CachedRenderCommand;
+        super.draw(commands);
+        commands.push(this.CachedRenderCommand);
     }
 }

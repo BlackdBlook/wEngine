@@ -1,5 +1,6 @@
 import { Matrix4, Quaternion, Vector3, Vector4, quat, radians } from "math.gl";
 import { WebGPUGlobalUniformManager } from "./WebGPUGlobalUniformManager.js";
+import { Engine } from "../Engine.js";
 
 export class Camera
 {
@@ -8,22 +9,25 @@ export class Camera
     private pos = new Vector3;
     private rot = new Quaternion;
     private viewMatCache = new Matrix4;
-    private projectionMatrix : Matrix4 = this.createProjectionMatrix();
+    private projectionMatrix! : Matrix4;
     needUpdateviewMatCache = true;
 
     private constructor()
     {
+        this.createProjectionMatrix(500, 500);
     }
 
-    private createProjectionMatrix() : Matrix4
+    createProjectionMatrix(width : number, height : number)
     {
         // 创建一个透视矩阵
-        let fovy = radians(90);  // 视场角度
-        let aspect = 1;  // 宽高比
+        let fovy = radians(105);  // 视场角度
+        let aspect = width / height;  // 宽高比
         let near = 0.1;  // 近裁剪面距离
         let far = 100;  // 远裁剪面距离
 
-        return new Matrix4().perspective({fovy, aspect, near, far});
+        this.projectionMatrix = new Matrix4().perspective({fovy, aspect, near, far});
+
+        this.needUpdateviewMatCache = true;
     }
 
     updateGlobalUnifrom()
@@ -100,9 +104,6 @@ export class Camera
                 center : center,
                 up : new Vector3(0, 1, 0), //TODO
             });
-                
-            console.log(pos);       
-            // console.log(this.rot); 
             
             this.needUpdateviewMatCache = false;
         }
