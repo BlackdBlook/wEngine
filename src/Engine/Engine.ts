@@ -52,7 +52,7 @@ export class Engine
         const now = Date.now();
         this.deltaTime = now - this.lastRunTime;
         const limit = 1000 / 60; // 60 times per second
-        if (this.lastRunTime == 0 || this.deltaTime >= limit) 
+        if (this.deltaTime >= limit || this.lastRunTime == 0) 
         {
             this.currentLevel.update(this.deltaTime);
             Camera.instance.update(this.deltaTime);
@@ -110,5 +110,6 @@ export class Engine
         this.height = height;
         
         Camera.instance.createProjectionMatrix(width, height);
+        this.CurrentRender.onCanvesSizeUpdate();
     }
 }

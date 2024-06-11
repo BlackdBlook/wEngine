@@ -1,3 +1,4 @@
+import { createEmitAndSemanticDiagnosticsBuilderProgram } from "typescript";
 import { Level } from "../../CoreObject/Level.js";
 import { Engine } from "../../Engine.js";
 import { check } from "../../Utils.js";
@@ -139,7 +140,12 @@ export class WebGPURender
               targets: [{
                 format: this.canvasFormat
               }]
-            }
+            },
+            depthStencil: { // <---- 更新的内容
+                depthWriteEnabled: true,
+                depthCompare: 'less',
+                format: 'depth24plus',
+            },
         });
 
         return cellPipeline;  
@@ -184,6 +190,27 @@ export class WebGPURender
         this.encoder = this.device.createCommandEncoder();
     }
 
+    DepthStencilView? : GPUTexture;
+
+    getDepthStencilView() : GPUTexture
+    {
+        if(!this.DepthStencilView)
+        {
+            this.DepthStencilView = this.device.createTexture({
+                size: [Engine.instance.width, Engine.instance.height],
+                format: 'depth24plus',
+                usage: GPUTextureUsage.RENDER_ATTACHMENT,
+              });
+        }
+
+        return this.DepthStencilView!;
+    }
+
+    onCanvesSizeUpdate()
+    {
+        this.DepthStencilView = undefined;
+    }
+
     beginRenderPass()
     {
         if(!this.encoder)
@@ -200,7 +227,13 @@ export class WebGPURender
                loadOp: "clear",
                clearValue: { r: 0.1, g: 0.1, b: 0.2, a: 1 }, // New line
                storeOp: "store",
-            }]
+            }],
+            depthStencilAttachment: { // <---- 这次的补充
+              view: this.getDepthStencilView().createView(),  
+              depthClearValue: 1.0,
+              depthLoadOp: 'clear',
+              depthStoreOp: 'store',
+            },
         });
 
         return currentPass;
@@ -230,6 +263,10 @@ export class WebGPURender
 
         let commands = new Array<RenderCommand>;
         CurrentLevel.draw(commands);
+
+        // commands.sort((a: RenderCommand, b: RenderCommand)=>{
+            
+        // });
         
         commands.forEach(element => {
             check(element.material).bind(context);

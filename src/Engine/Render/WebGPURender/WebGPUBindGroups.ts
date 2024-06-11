@@ -2,21 +2,18 @@ import { ShaderDataDefinitions, makeStructuredView } from "webgpu-utils";
 import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer";
 import { check } from "../../Utils";
 import { WebGPUGlobalUniformManager } from "../../CoreObject/WebGPUGlobalUniformManager";
+import { WebGPUTexture, WebGPUTextureBindGroupInfo } from "./WebGPUTexture.js";
 
 export class GPUBindGroupEntryImpl implements GPUBindGroupEntry
 {
     binding: number;
     resource: GPUBindingResource;
 
-    constructor(binding: number, buffer: WebGPUUniformBuffer)
+    constructor(binding: number, resource: GPUBindingResource)
     {
         this.binding = binding;
-        this.resource = buffer;
+        this.resource = resource;
     }
-}
-
-export interface uniformData {
-    [x : string] : any;
 }
 
 export class WebGPUBindGroups
@@ -25,11 +22,14 @@ export class WebGPUBindGroups
     groups = new Map<number, GPUBindGroup>();
     bindGlobalUniform : boolean = false;
     device : GPUDevice;
-    constructor(device : GPUDevice, pipeline : GPURenderPipeline, datas : ShaderDataDefinitions)
+    groupInfos = new Map<number, Array<GPUBindGroupEntryImpl>>()
+    constructor(device : GPUDevice)
+    {  
+        this.device = device;        
+    }
+    
+    initBufferData(datas : ShaderDataDefinitions)
     {
-        this.device = device;
-        let groupInfos = new Map<number, Array<GPUBindGroupEntryImpl>>();
-
         let keys = Object.keys(datas.uniforms);
 
         // 获取所有的Uniform变量
@@ -50,27 +50,125 @@ export class WebGPUBindGroups
                 return;
             }
             
-            let buffer = new WebGPUUniformBuffer(device, uniform);
+            let buffer = new WebGPUUniformBuffer(this.device, uniform);
             
             // 收集Group标号
-            let group = groupInfos.get(uniform.group);
+            let group = this.groupInfos.get(uniform.group);
             if(!group)
             {
                 group = new Array<GPUBindGroupEntryImpl>;
-                groupInfos.set(uniform.group, group);
+                this.groupInfos.set(uniform.group, group);
             }
             group.push(new GPUBindGroupEntryImpl(uniform.binding, buffer));
             
             // 收集变量名
             this.values.set(value, buffer);
         });
+    }
 
-        groupInfos.forEach((value: GPUBindGroupEntryImpl[], key: number, map: Map<number, GPUBindGroupEntryImpl[]>)=>{
+    initTextureData(datas : ShaderDataDefinitions, textureResoures : Map<WebGPUTextureBindGroupInfo, WebGPUTexture>)
+    {
+        let textures = Object.keys(datas.textures);
+
+        textures.forEach((value: string, index: number, array: string[])=>{
+            if(this.values.has(value))
+            {
+                throw new Error("Uniform变量名重复");
+            }
+
+            let texture = datas.textures[value];
+            if(texture.group == 0 && value === "GlobalUniform")
+            {
+                // 0是GlobalUniformBuffer，不需要在这里绑定
+                this.bindGlobalUniform = true;
+                console.log("need bind global");
+                
+                return;
+            }
+
+            // 收集Group标号
+            let group = this.groupInfos.get(texture.group);
+            if(!group)
+            {
+                group = new Array<GPUBindGroupEntryImpl>;
+                this.groupInfos.set(texture.group, group);
+            }
+
+            let text = textureResoures.get(
+                    {
+                        bind:texture.binding, 
+                        group : texture.group
+                    }
+                );
+
+            if(text)
+            {
+                group.push(new GPUBindGroupEntryImpl(texture.binding, text.createView()));
+            }else
+            {
+                group.push(new GPUBindGroupEntryImpl(texture.binding, WebGPUTexture.default().createView()));
+            }
             
-            let layout = pipeline.getBindGroupLayout(key);
-            const bindGroup = device.createBindGroup({
-                label: "uniform",
-                layout: layout,
+            // 收集变量名
+            // this.values.set(value, buffer);
+        });
+
+        console.log(textures);
+        
+    }
+    
+    initSamplerData(datas : ShaderDataDefinitions, textureResoures : Map<WebGPUTextureBindGroupInfo, WebGPUTexture>)
+    {
+        let samplers = Object.keys(datas.samplers);
+
+        samplers.forEach((value: string, index: number, array: string[])=>{
+            if(this.values.has(value))
+            {
+                throw new Error("Uniform变量名重复");
+            }
+
+            let texture = datas.textures[value];
+            if(texture.group == 0 && value === "GlobalUniform")
+            {
+                // 0是GlobalUniformBuffer，不需要在这里绑定
+                this.bindGlobalUniform = true;
+                console.log("need bind global");
+                
+                return;
+            }
+
+            // 收集Group标号
+            let group = this.groupInfos.get(texture.group);
+            if(!group)
+            {
+                group = new Array<GPUBindGroupEntryImpl>;
+                this.groupInfos.set(texture.group, group);
+            }
+
+            let text = textureResoures.get(
+                {
+                    bind : texture.binding, 
+                    group : texture.group
+                }
+            );
+            if(text)
+            {
+                group.push(new GPUBindGroupEntryImpl(texture.binding, text.getSampler()));
+            }else
+            {
+                group.push(new GPUBindGroupEntryImpl(texture.binding, WebGPUTexture.default().getSampler()));
+            }
+            // 收集变量名
+            // this.values.set(value, buffer);
+        });
+    }
+
+    createBindGroup(pipeLine : GPUPipelineBase)
+    {
+        this.groupInfos.forEach((value: GPUBindGroupEntryImpl[], key: number, map: Map<number, GPUBindGroupEntryImpl[]>)=>{
+            const bindGroup = this.device.createBindGroup({
+                label: pipeLine.toString(),
+                layout: pipeLine.getBindGroupLayout(key),
                 entries: value,
             });
             this.groups.set(key, bindGroup);
